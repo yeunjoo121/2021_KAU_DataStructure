@@ -132,9 +132,10 @@ int checkError(char *input, char *infix)//에러가 발생했는지 확인하고
             {
                 if (arternate == 1)//이전 값이 연산자이면
                 {
+                    cout << "연산자 후 연산자" << endl;
                     return (-1);
                 }
-                arternate = 0;
+                arternate = 1;
                 operatorNum++;
             }
             else if (isParanthesis(input[i]) == 1)//괄호인가
@@ -152,6 +153,7 @@ int checkError(char *input, char *infix)//에러가 발생했는지 확인하고
             {
                 if (arternate == 0)//2.피연산자 전이 또 피연산자이면 오류
                 {
+                    cout << "피연산자 전 피연산자" << endl;
                     return (-1);
                 }
                 arternate = 0;
@@ -213,7 +215,7 @@ int icp(char ch)
     return (icpint[index]);
 }
 //중위연산을 후위연산으로 바꾸기
-void infixToPostfix(char *postfix, char *infix, int *number)//number에 숫자 넣기. postfix에는 숫자가 있다는 뜻으로 .넣기. 안그러면 12 * 3했을 때 123*라 숫자 구분 x
+void infixToPostfix(char *postfix, char *infix, long long int *number)//number에 숫자 넣기. postfix에는 숫자가 있다는 뜻으로 .넣기. 안그러면 12 * 3했을 때 123*라 숫자 구분 x
 {
     int postfixIndex = 0;
     Stack<char>stack;
@@ -228,7 +230,7 @@ void infixToPostfix(char *postfix, char *infix, int *number)//number에 숫자 �
         {
             //cout << infix[i];
             isnum = 1;
-            int num = 0;
+            long long int num = 0;
             while (infix[i] >= '0' && infix[i] <= '9')
             {
                 num = num * 10 + (infix[i++] - '0');
@@ -271,7 +273,7 @@ void infixToPostfix(char *postfix, char *infix, int *number)//number에 숫자 �
 }
 
 //display
-void display(char *arr, int *number)
+void display(char *arr, long long int *number)
 {
     for(int i = 0; i < strlen(arr) - 1; i++)//마지막은 #
     {
@@ -287,9 +289,9 @@ void display(char *arr, int *number)
     cout << endl;
 }
 
-int calculate(char *postfix, int *number)
+int calculate(char *postfix, long long int *number)
 {
-    Stack<int> stack;
+    Stack<long long int> stack;
     int i = 0;
     
     while (postfix[i] != '#')
@@ -300,27 +302,36 @@ int calculate(char *postfix, int *number)
         }
         else
         {
-            int second = stack.Top();
+            long long int second = stack.Top();
             stack.Pop();
-            int first = stack.Top();
+            long long int first = stack.Top();
             stack.Pop();
-            int res;
+            long long int res;
             if (postfix[i] == '*')
                 res = first * second;
             else if (postfix[i] == '/')
             {
                 if (second == 0)
-                    return (-1);
+                    return (INT_MAX-1);
                 res = first / second;
             }
             else if (postfix[i] == '-')
                 res = first - second;
             else if (postfix[i] == '+')
                 res = first + second;
-            stack.Push(res);
+            if (res > INT_MAX)
+                return (INT_MAX);
+            else if (res < INT_MIN)
+                return (INT_MIN);
+            else
+                stack.Push(res);
         }
         i++;
     }
+    if (stack.Top() > INT_MAX)
+        return (INT_MAX);
+    else if (stack.Top() < INT_MIN)
+        return (INT_MIN);
     return (stack.Top());
 }
 
@@ -329,7 +340,7 @@ int main(void)
     char postfix[1000] = {0, };
     char infix[1000] = {0, };
     char input[1000] = {0, };
-    int number[1000] = {0, };
+    long long int number[1000] = {0, };//overflow, underflow 처리 위한 long int형 배열
 
     //입력받기
     cout << "수식을 입력하세요" << endl;
@@ -355,8 +366,12 @@ int main(void)
     display(postfix, number);
     //후위 연산 계산하기
     int result = calculate(postfix, number);
-    if (result == -1)
+    if (result == INT_MAX - 1)
         cout << "devided by zero. error" << endl;
+    else if (result == INT_MAX)
+        cout << "integer overflow. error" << endl;
+    else if (result == INT_MIN)
+        cout << "integer underflow. error" << endl;
     else
         cout << "계산결과 : " << calculate(postfix, number) << endl;
     return (0);
@@ -365,3 +380,5 @@ int main(void)
 //)개수 > (개수 - 해결
 //오버플로우
 //번갈아 나오게 하기 - 해결
+//2147483647
+//3000000000 - 1
