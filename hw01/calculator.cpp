@@ -132,7 +132,6 @@ int checkError(char *input, char *infix)//에러가 발생했는지 확인하고
             {
                 if (arternate == 1)//이전 값이 연산자이면
                 {
-                    cout << "연산자 후 연산자" << endl;
                     return (-1);
                 }
                 arternate = 1;
@@ -153,7 +152,6 @@ int checkError(char *input, char *infix)//에러가 발생했는지 확인하고
             {
                 if (arternate == 0)//2.피연산자 전이 또 피연산자이면 오류
                 {
-                    cout << "피연산자 전 피연산자" << endl;
                     return (-1);
                 }
                 arternate = 0;
